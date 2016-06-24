@@ -11,59 +11,63 @@ import (
 	"os"
 	"path/filepath"
 
+	"go.pedge.io/env"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/joho/godotenv"
 	"github.com/mitchellh/go-homedir"
-	flag "github.com/spf13/pflag"
 )
 
-func main() {
-	var (
-		dir       string
-		bucket    string
-		bucketDir string
-	)
+type appEnv struct {
+	Dir       string `env:"SCREENSHOT_DIR,default=~/Dropbox/Screenshots"`
+	Bucket    string `env:"SCREENSHOT_BUCKET,default=i.samby.co.uk"`
+	BucketDir string `env:"SCREENSHOT_BUCKET_DIR,default=i"`
+}
 
+func main() {
 	// Load .env
 	err := godotenv.Load()
-	handle(err)
+	if err != nil {
+		return
+	}
+	env.Main(do, &appEnv{})
+}
+
+func do(appEnvObj interface{}) error {
+	appEnv := appEnvObj.(*appEnv)
+
 	// Expand default path
-	path, err := homedir.Expand("~/Dropbox/Screenshots")
-	handle(err)
-
-	// Setup flags
-	flag.StringVar(&dir, "dir", path, "screenshot directory")
-	flag.StringVar(&bucket, "bucket", "i.samby.co.uk", "s3 bucket")
-	flag.StringVar(&bucketDir, "bucket-dir", "i", "directory to store screenshots in bucket")
-	flag.Parse()
-
+	dir, err := homedir.Expand(appEnv.Dir)
+	if err != nil {
+		return err
+	}
 	// Find latest screenshot and store the extension
 	filename, err := getLatestScreenshot(dir)
-	handle(err)
+	if err != nil {
+		return err
+	}
 	ext := filepath.Ext(filename)
 	// Load its bytes and create a reader
 	b, err := loadScreenshot(filename)
-	handle(err)
+	if err != nil {
+		return err
+	}
 	br := bytes.NewReader(b)
 	// Get its trimmed sha256 hash to use as a filename
 	trimmedHash := trimHash(getHash(b))
 	// And make the output filename
-	outname := makeFilename(bucketDir, trimmedHash, ext)
+	outname := makeFilename(appEnv.BucketDir, trimmedHash, ext)
 
 	// Create the S3 service
 	service := s3.New(session.New(&aws.Config{Region: aws.String("us-east-1")}))
 	// Upload screenshot to S3
-	err = uploadToS3(service, br, bucket, outname)
-	handle(err)
-}
-
-func handle(err error) {
+	err = uploadToS3(service, br, appEnv.Bucket, outname)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(-1)
+		return err
 	}
+	return nil
 }
 
 func getLatestScreenshot(dir string) (string, error) {
