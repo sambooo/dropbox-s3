@@ -13,6 +13,7 @@ import (
 
 	"go.pedge.io/env"
 
+	"github.com/atotto/clipboard"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -64,6 +65,11 @@ func do(appEnvObj interface{}) error {
 	service := s3.New(session.New(&aws.Config{Region: aws.String("us-east-1")}))
 	// Upload screenshot to S3
 	err = uploadToS3(service, br, appEnv.Bucket, outname)
+	if err != nil {
+		return err
+	}
+	// Copy url
+	err = copyUrl(appEnv.Bucket, outname)
 	if err != nil {
 		return err
 	}
@@ -119,4 +125,12 @@ func uploadToS3(service *s3.S3, file io.ReadSeeker, bucket, key string) error {
 	}
 	fmt.Printf("uploaded http://%s\n", filepath.Join(bucket, key))
 	return nil
+}
+
+func copyUrl(bucket, key string) error {
+	err := clipboard.WriteAll(fmt.Sprintf("http://%s\n", filepath.Join(bucket, key)))
+	if err == nil {
+		fmt.Println("copied to clipboard")
+	}
+	return err
 }
