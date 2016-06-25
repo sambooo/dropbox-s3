@@ -28,11 +28,8 @@ type appEnv struct {
 }
 
 func main() {
-	// Load .env
-	err := godotenv.Load()
-	if err != nil {
-		return
-	}
+	// Load .env and ignore errors
+	_ = godotenv.Load()
 	env.Main(do, &appEnv{})
 }
 
