@@ -104,7 +104,7 @@ func trimHash(hash string) string {
 }
 
 func makeFilename(bucketDir, hash, extension string) string {
-	return filepath.Join(bucketDir, hash+extension)
+	return bucketDir + "/" + hash + extension
 }
 
 func uploadToS3(service *s3.S3, file io.ReadSeeker, bucket, key string) error {
@@ -120,12 +120,12 @@ func uploadToS3(service *s3.S3, file io.ReadSeeker, bucket, key string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("uploaded http://%s\n", filepath.Join(bucket, key))
+	fmt.Printf("uploaded http://%s\n", bucket+"/"+key)
 	return nil
 }
 
 func copyUrl(bucket, key string) error {
-	err := clipboard.WriteAll(fmt.Sprintf("http://%s\n", filepath.Join(bucket, key)))
+	err := clipboard.WriteAll(fmt.Sprintf("http://%s\n", bucket+"/"+key))
 	if err == nil {
 		fmt.Println("copied to clipboard")
 	}
