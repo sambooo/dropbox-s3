@@ -1,4 +1,10 @@
-Export the following in `.env` (or otherwise), replacing keys as appropriate:
+# dropbox-s3
+
+A simple utility that uploads Dropbox screenshots to an Amazon S3 bucket. Install with `$ go get github.com/sambooo/dropbox-s3`.
+
+## Config
+
+Export the following in `.env` (or any other filename), replacing keys as appropriate:
 
 ```shell
 export AWS_ACCESS_KEY="ABCDEFGHIJKL"
