@@ -2,6 +2,8 @@
 
 A simple utility that uploads Dropbox screenshots to an Amazon S3 bucket. Install with `$ go get github.com/sambooo/dropbox-s3`.
 
+Filenames are reproducably chosen for each image to maintain consistency across multiple devices without an external data-store.
+
 ## Config
 
 Export the following in `.env` (or any other filename), replacing keys as appropriate:
