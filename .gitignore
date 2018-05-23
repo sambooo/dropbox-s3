@@ -1,3 +1,5 @@
-/dropbox-s3
-/.env
-/pkg
+*
+!.envrc
+!.gitignore
+!README.md
+!src
