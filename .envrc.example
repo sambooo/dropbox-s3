@@ -1,0 +1,4 @@
+export GOPATH=$PWD
+# Add necessary AWS credentials below
+export AWS_ACCESS_KEY="FOO"
+export AWS_SECRET_ACCESS_KEY="BAR"
