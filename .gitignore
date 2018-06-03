@@ -1,5 +1,5 @@
-*
-!.envrc.example
-!.gitignore
-!README.md
-!src
+/*
+!/.envrc.example
+!/.gitignore
+!/README.md
+!/src
